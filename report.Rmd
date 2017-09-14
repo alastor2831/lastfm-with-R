@@ -1,0 +1,44 @@
+---
+title: "An exploration and visualization of my Last.fm user data using R"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+### 7 years of 
+
+I used to be an avid user of all sort of social networks back in the early '10, when a new (and unnecessary) one was born by the time you had finished signin-up to the previous one. As of today, of only two I still remember 
+have survived and I still use on a daily baisis, Last.fm being one of them (
+
+
+In all fairness, I was quite late to the party when I joined the Last.fm community in 2010, on December xx, as I am reminded every time I open my profile page. It's no secret the site peaked in popularity slighly before social-media took over the internet and our lives, with years '06-'07 being often pinpointed as "the "
+
+Also greately acknowledged by die-hard members of the community is the downhill path Last.fm      since the new "Beta" version of the site was [first made public](https://thenextweb.com/apps/2015/06/05/last-fm-tries-for-a-new-groove-with-a-complete-site-overhaul/#.tnw_9jMosgrI) in June 2015 and quickly rolled out to all its users just a few months later,  in [mid August](https://www.pcmag.com/article2/0,2817,2341738,00.asp). 
+ 
+For those who may not be familiar with what Last.fm **raw*** user data consist of, it is essentially nothing more than a list of timestamps down to the minute, at which you have listened (or *scrobbled* in Last.fm lingo) a certain track. Variables such as author and title of the track are always present, whereas 
+
+# Getting the data
+
+No story can even begin without its protagonist, so let's go get this data. We can use the Last.fm API to retrieve data relative to our (or someoneelse's) user account via one of the (few) *user.get\** endpoints documented [here](https://www.last.fm/api/show/user.getRecentTracks). Since all the endpoints that I will be using here only perform REST requests to Last.fm servers, no authentication is required. However a public personal key must always be included in the query. To obtain one, just create an API account [here](https://www.last.fm/api/account/create).
+I will be using the `httr` package which provide a convinient way to build queries url and perform the HTTP GET request. Last.fm API can respond with files either in XML or JSON format; I choose the the latter since it appears to be the most favored format when it comes to REST APIs and json's are easy to parse using the `jsonlite` package.
+
+```{r}
+
+library(jsonlite)
+library(httr)
+library(tidyverse)
+
+# create a function that returns scrobbles from a user profile
+user_scrobbles <- function(user, limit = 200, page = 1){
+   lastfm_response <- GET(url = "http://ws.audioscrobbler.com/2.0/",
+                   query = list(method = "user.getRecentTracks", user = user, page = page, limit = limit, 
+                                api_key = lastfmkey, format = "json"))
+}  
+
+```
+
+Here I created a function `user_scrobbles` that runs a GET request to the *user.getRecentTracks* endpoint, parse the json content of the response into an R object using `fromJSON()` and stores only the useful variables in a data frame (a tibble since I'm largely relying on the tidyverse packages).
+Last.fm limits the number of results at 200 per request, and offers an optional `page` parameter to access the other scrobbles by making multiple requests. The total number of pages that make up a user's music library can be found in the content of any API response

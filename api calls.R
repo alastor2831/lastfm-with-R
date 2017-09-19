@@ -2,7 +2,7 @@ library(httr)
 library(tidyverse)
 library(jsonline)
 
-lastfmkey = "xxxxxxxxxxxxxxxxxxxxxx"
+lastfmkey = "xxxxxxxxxxxxxxxxxxxxxxxx"
 
 
 
@@ -16,7 +16,7 @@ user_topAlbum <- function(user = user, period = period, limit = 50, page = 1, fo
   raw_json <- content(call, as = "text", encoding = "UTF-8")
   parsed_json <- fromJSON(raw_json)
   
-  df <- tibble(
+  df <- tibble::tibble(
     album = parsed_json$topalbums$album$name,
     playcount = parsed_json$topalbums$album$playcount,
     mbid = parsed_json$topalbums$album$mbid
@@ -27,13 +27,10 @@ user_topAlbum <- function(user = user, period = period, limit = 50, page = 1, fo
 
 
 ### GET USER SCROBBLINGS  ###
-
+# From lastfm API documentation:
+# The endpoint artist.getRecentTracks returns the recent tracks listened to by this user.
 
 user_scrobbles <- function(user, limit = 200, page = 1){
-   
-   # From lastfm API documentation:
-   # The endpoint artist.getRecentTracks returns the recent tracks listened to by this user.
-      
    lastfm_response <- GET(url = "http://ws.audioscrobbler.com/2.0/",
                    query = list(method = "user.getRecentTracks", user = user, page = page, limit = limit, api_key = lastfmkey, format = "json"))
   
@@ -51,8 +48,7 @@ user_scrobbles <- function(user, limit = 200, page = 1){
       date = raw.scrobbles$recenttracks$track$`date.#text`
   )
    
-   scrobbles 
-   mys <- mys %>% mutate(date = parse_date_time(date, orders = "dbyH!M!", locale = "English", tz = "Europe/Rome"))
+   scrobbles <- scrobbles %>% mutate(date = parse_date_time(date, orders = "dbyH!M!", locale = "English", tz = "Europe/Rome"))
    
    return(scrobbles) 
 }

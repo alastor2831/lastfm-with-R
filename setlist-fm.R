@@ -8,7 +8,7 @@ setlist_key <- "xxxxxxxxxxxxxxxxxxxxx"
 
 setlist_root <- "https://api.setlist.fm"
 
-username = "likeeatingpizza"
+username <- "likeeatingpizza"
 
 
 
